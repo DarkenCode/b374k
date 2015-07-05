@@ -41,8 +41,22 @@ $GLOBALS['module']['database']['content'] = "
 if(!function_exists('sql_connect')){
 	function sql_connect($sqltype, $sqlhost, $sqluser, $sqlpass){
 		if($sqltype == 'mysql'){
-			if(class_exists('mysqli')) return new mysqli($sqlhost, $sqluser, $sqlpass);
-			elseif(function_exists('mysql_connect')) return @mysql_connect($sqlhost, $sqluser, $sqlpass);
+			if(class_exists('mysqli')) {
+				$conn = new mysqli($sqlhost, $sqluser, $sqlpass);
+				if(!empty($_COOKIE['charset']))
+				$conn->set_charset($_COOKIE['charset']);
+				else
+				$conn->set_charset('utf8');
+				return $conn;
+			}
+			elseif(function_exists('mysql_connect')) {
+				$conn = @mysql_connect($sqlhost, $sqluser, $sqlpass);
+				if(!empty($_COOKIE['charset']))
+				mysql_set_charset($_COOKIE['charset'], $conn);
+				else
+				mysql_set_charset('utf8', $conn);
+				return $conn;
+			}
 		}
 		elseif($sqltype == 'mssql'){
 			if(function_exists('sqlsrv_connect')){
